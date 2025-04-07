@@ -1,6 +1,49 @@
 import streamlit as st
+import tensorflow as tf
+import numpy as np
 
-st.title("🎈 My new app")
+# Load the Keras model
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model("Model_v1 .keras")
+
+model = load_model()
+
+st.title("🎈 Earthquake Magnitude Detection")
 st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
+    "This app predicts earthquake magnitudes using a pre-trained model. "
+    "Enter the latitude, longitude, and depth to get a prediction."
 )
+
+# Input fields for earthquake data
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    latitude = st.number_input("Latitude", format="%.4f")
+    
+with col2:
+    longitude = st.number_input("Longitude", format="%.4f")
+    
+with col3:
+    depth = st.number_input("Depth (km)", min_value=0.0, format="%.2f")
+
+# Button to trigger prediction
+if st.button("Predict Magnitude"):
+    try:
+        # Prepare input data for the model (3 features)
+        input_data = np.array([[latitude, longitude, depth]])
+        
+        # Make prediction
+        prediction = model.predict(input_data)
+        
+        # Cap the magnitude at 10 for display
+        display_magnitude = min(float(prediction[0][0]), 10.0)
+        
+        # Display the result
+        st.success(f"Predicted Earthquake Magnitude: **{display_magnitude:.2f}**")
+        
+        # Visualize the prediction with a gauge
+        st.metric("Magnitude on Richter Scale", f"{display_magnitude:.2f}")
+        
+    except Exception as e:
+        st.error(f"An error occurred while making predictions: {e}")
