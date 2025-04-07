@@ -37,7 +37,7 @@ if st.button("Predict Magnitude"):
         prediction = model.predict(input_data)
         
         # Cap the magnitude at 10 for display
-        display_magnitude = min(float(prediction[0][0]), 10.0)
+        display_magnitude = float(prediction[0][0])/10.0
         
         # Display the result
         st.success(f"Predicted Earthquake Magnitude: **{display_magnitude:.2f}**")
